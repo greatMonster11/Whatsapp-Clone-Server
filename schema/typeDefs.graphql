@@ -12,7 +12,7 @@ type Chat {
   name: String!
   picture: URL
   lastMessage: Message
-  message: [Message!]!
+  messages: [Message!]!
 }
 
 type Query {
