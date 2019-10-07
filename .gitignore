@@ -5,6 +5,9 @@ npm-debug.log
 /.pnp
 .pnp.js
 
+test-results/
+types/graphql.d.ts
+
 # testing
 /coverage
 
