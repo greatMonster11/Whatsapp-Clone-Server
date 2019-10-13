@@ -5,6 +5,7 @@ type Message {
   id: ID!
   content: String!
   createdAt: Date!
+  chat: Chat
 }
 
 type Chat {
@@ -25,5 +26,5 @@ type Mutation {
 }
 
 type Subscription {
-  messageAdded: Message!
+  MessageAdded: Message!
 }
