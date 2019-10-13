@@ -1,4 +1,4 @@
-import { ApolloServer, gql } from 'apollo-server-express';
+import { ApolloServer, gql, PubSub } from 'apollo-server-express';
 import express from 'express';
 import cors from 'cors';
 import { chats } from './db';
@@ -17,7 +17,11 @@ app.get('/chats', (req, res) => {
   res.json(chats);
 });
 
-const server = new ApolloServer({ schema });
+const pubsub = new PubSub();
+const server = new ApolloServer({
+  schema,
+  context: () => ({ pubsub }),
+});
 
 server.applyMiddleware({
   app,
