@@ -58,8 +58,8 @@ const resolvers: Resolvers = {
       chats.splice(chatIndex, 1);
       chats.unshift(chat);
 
-      pubsub.publish('MessageAdded', {
-        MessageAdded: message,
+      pubsub.publish('messageAdded', {
+        messageAdded: message,
       });
 
       return message;
@@ -67,9 +67,9 @@ const resolvers: Resolvers = {
   },
 
   Subscription: {
-    MessageAdded: {
+    messageAdded: {
       subscribe: (root, args, { pubsub }) =>
-        pubsub.asyncIterator('MessageAdded'),
+        pubsub.asyncIterator('messageAdded'),
     },
   },
 };
