@@ -26,5 +26,5 @@ type Mutation {
 }
 
 type Subscription {
-  MessageAdded: Message!
+  messageAdded: Message!
 }

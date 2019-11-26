@@ -1,5 +1,5 @@
 import { createTestClient } from 'apollo-server-testing';
-import { ApolloServer, gql, PubSub } from 'apollo-server-express';
+import { ApolloServer, PubSub, gql } from 'apollo-server-express';
 import schema from '../../schema';
 import { resetDb } from '../../db';
 
