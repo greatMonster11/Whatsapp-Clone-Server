@@ -1,33 +1,41 @@
 import { ApolloServer, gql, PubSub } from 'apollo-server-express';
-import express from 'express';
 import cors from 'cors';
+import express from 'express';
 import http from 'http';
-
-import { chats } from './db';
+import { users } from './db';
 import schema from './schema';
 
 const app = express();
 
-app.use(cors());
+const origin = process.env.ORIGIN || 'http://localhost:3000';
+app.use(cors({ credentials: true, origin }));
 app.use(express.json());
 
 app.get('/_ping', (req, res) => {
   res.send('pong');
 });
 
-app.get('/chats', (req, res) => {
-  res.json(chats);
-});
-
 const pubsub = new PubSub();
 const server = new ApolloServer({
   schema,
-  context: () => ({ pubsub }),
+  context: () => ({
+    currentUser: users.find(u => u.id === '1'),
+    pubsub,
+  }),
+  subscriptions: {
+    onConnect(params, ws, ctx) {
+      // pass the request object to context
+      return {
+        request: ctx.request,
+      };
+    },
+  },
 });
 
 server.applyMiddleware({
   app,
   path: '/graphql',
+  cors: { credentials: true, origin },
 });
 
 const httpServer = http.createServer(app);
