@@ -18,17 +18,35 @@ const resolvers: Resolvers = {
     recipient(message) {
       return users.find(u => u.id === message.recipient) || null;
     },
+
+    isMine(message, args, { currentUser }) {
+      return message.sender === currentUser.id;
+    },
   },
 
   Chat: {
-    name() {
-      // TODO: Resolve in relation to current user
-      return null;
+    name(chat, args, { currentUser }) {
+      if (!currentUser) return null;
+
+      const participantId = chat.participants.find(p => p !== currentUser.id);
+
+      if (!participantId) return null;
+
+      const participant = users.find(u => u.id === participantId);
+
+      return participant ? participant.name : null;
     },
 
-    picture() {
-      // TODO: Resolve in relation to current user
-      return null;
+    picture(chat, args, { currentUser }) {
+      if (!currentUser) return null;
+
+      const participantId = chat.participants.find(p => p !== currentUser.id);
+
+      if (!participantId) return null;
+
+      const participant = users.find(u => u.id === participantId);
+
+      return participant ? participant.picture : null;
     },
 
     messages(chat) {
@@ -49,12 +67,20 @@ const resolvers: Resolvers = {
   },
 
   Query: {
-    chats() {
-      return chats;
+    chats(root, args, { currentUser }) {
+      if (!currentUser) return [];
+
+      return chats.filter(c => c.participants.includes(currentUser.id));
     },
 
-    chat(root, { chatId }) {
-      return chats.find(c => c.id === chatId) || null;
+    chat(root, { chatId }, { currentUser }) {
+      if (!currentUser) return null;
+
+      const chat = chats.find(c => c.id === chatId);
+
+      if (!chat) return null;
+
+      return chat.participants.includes(currentUser.id) ? chat : null;
     },
   },
 
