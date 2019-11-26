@@ -108,7 +108,6 @@ export const resetDb = () => {
       {
         id: '2',
         participants: ['1', '3'],
-
         messages: ['2'],
       },
       {

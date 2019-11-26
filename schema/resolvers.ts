@@ -1,5 +1,6 @@
+import { withFilter } from 'apollo-server-express';
 import { DateTimeResolver, URLResolver } from 'graphql-scalars';
-import { Message, chats, messages, users } from '../db';
+import { User, Message, chats, messages, users } from '../db';
 import { Resolvers } from '../types/graphql';
 
 const resolvers: Resolvers = {
@@ -85,12 +86,14 @@ const resolvers: Resolvers = {
   },
 
   Mutation: {
-    addMessage(root, { chatId, content }, { pubsub }) {
+    addMessage(root, { chatId, content }, { currentUser, pubsub }) {
+      if (!currentUser) return null;
       const chatIndex = chats.findIndex(c => c.id === chatId);
 
       if (chatIndex === -1) return null;
 
       const chat = chats[chatIndex];
+      if (!chat.participants.includes(currentUser.id)) return null;
 
       const messageIds = messages.map(currentMessage =>
         Number(currentMessage.id)
@@ -99,8 +102,8 @@ const resolvers: Resolvers = {
       const message: Message = {
         id: messageId,
         createdAt: new Date(),
-        sender: '',
-        recipient: '',
+        sender: currentUser.id,
+        recipient: chat.participants.find(p => p !== currentUser.id) as string,
         content,
       };
 
@@ -120,8 +123,16 @@ const resolvers: Resolvers = {
 
   Subscription: {
     messageAdded: {
-      subscribe: (root, args, { pubsub }) =>
-        pubsub.asyncIterator('messageAdded'),
+      subscribe: withFilter(
+        (root, args, { pubsub }) => pubsub.asyncIterator('messageAdded'),
+        ({ messageAdded }, args, { currentUser }) => {
+          if (!currentUser) return false;
+
+          return [messageAdded.sender, messageAdded.recipient].includes(
+            currentUser.id
+          );
+        }
+      ),
     },
   },
 };

@@ -2,7 +2,7 @@ scalar Date
 scalar URL
 
 type User {
-  id: !ID
+  id: ID!
   name: String!
   picture: URL
 }
